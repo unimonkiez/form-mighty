@@ -26,6 +26,13 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:all": "react-scripts test --watchAll=false --passWithNoTests",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"src/*.ts\"",
+    "format:check": "prettier --check \"src/*.ts\"",
+    "lint": "eslint \"src/*.ts\"",
+    "lint:fix": "npm run lint -- --fix",
+    "lint:err": "npm run lint -- --quiet",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -47,6 +54,7 @@
     ]
   },
   "devDependencies": {
-    "@types/invariant": "^2.2.35"
+    "@types/invariant": "^2.2.35",
+    "prettier": "^2.5.0"
   }
 }
