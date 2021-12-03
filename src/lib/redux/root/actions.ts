@@ -1,9 +1,9 @@
-import { FormValuesType } from "../../types";
+import { FormState, FormValuesType } from "../../types";
 
-export const createForm = <V extends FormValuesType>(
+export const registerForm = <V extends FormValuesType>(
   uniqueKey: string,
-  initialValues: Partial<V> = {}
+  initialState: FormState<V>
 ) => ({
-  type: "@FORM_MIGHTY/Root_CreateForm" as const,
-  payload: { uniqueKey, initialValues },
+  type: "@FORM_MIGHTY/Root_RegisterForm" as const,
+  payload: { uniqueKey, initialState },
 });

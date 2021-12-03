@@ -6,12 +6,9 @@ const initialState: RootState = {};
 export const rootReducer = (state = initialState, action: RootAction) => {
   return produce(state, (draft) => {
     switch (action.type) {
-      case "@FORM_MIGHTY/Root_CreateForm":
-        const { uniqueKey, initialValues } = action.payload;
-        draft[uniqueKey] = {
-          initialValues,
-          values: initialValues,
-        };
+      case "@FORM_MIGHTY/Root_RegisterForm":
+        const { uniqueKey, initialState } = action.payload;
+        draft[uniqueKey] = initialState;
 
         break;
     }

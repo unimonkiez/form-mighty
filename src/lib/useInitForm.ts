@@ -3,7 +3,9 @@ import { createFormToolkit } from "./createFormToolkit";
 import { FormToolkit, FormValuesType } from "./types";
 
 export interface UseInitForm {
-  <V extends FormValuesType>(arg?: { initialValues?: V }): FormToolkit;
+  <V extends FormValuesType>(arg?: {
+    initialValues?: Partial<V>;
+  }): FormToolkit<V>;
 }
 
 export const useInitForm: UseInitForm = (arg) => {

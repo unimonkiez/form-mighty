@@ -1,43 +1,39 @@
-import { useRef, useMemo, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { FormContextProvider } from "./context";
+import { useRef, useEffect } from "react";
+import { FormContextProvider } from "./formContext";
 import { createFormToolkit } from "./createFormToolkit";
-import { createForm } from "./redux/root/actions";
-import { FormToolkit, FormValuesType } from "./types";
+import { FormToolkit, FormValuesType, Mandatory } from "./types";
+import invariant from "invariant";
 
 export interface FormMightyProps<V extends FormValuesType> {
-  toolkit?: FormToolkit;
+  toolkit?: FormToolkit<V>;
   initialValues?: V;
   component?: React.ComponentType<any>;
-  children?: (toolkit: FormToolkit) => React.ReactNode;
+  children?: (toolkit: FormToolkit<V>) => React.ReactNode;
 }
 
 export const FormMighty: <V>(
   props: FormMightyProps<V>
 ) => React.ReactElement<any, any> | null = ({
-  initialValues,
+  initialValues = {},
   toolkit: givenToolkit,
   component,
   children,
 }) => {
-  const dispatch = useDispatch();
-
-  const createToolkitArgRef = useRef({ initialValues: initialValues ?? {} });
-
-  const toolkit = useMemo(
-    () => givenToolkit ?? createFormToolkit(createToolkitArgRef.current),
-    [givenToolkit]
+  invariant(
+    component ?? children,
+    "FormMighty - Not received component or children prop"
   );
 
+  const toolkitRef: React.MutableRefObject<Mandatory<typeof givenToolkit>> =
+    useRef(givenToolkit ?? createFormToolkit({ initialValues }));
+
   useEffect(() => {
-    dispatch(
-      createForm(toolkit.formKey, createToolkitArgRef.current.initialValues)
-    );
-  }, [dispatch, toolkit]);
+    toolkitRef.current.register();
+  }, []);
 
   return (
-    <FormContextProvider value={toolkit}>
-      {component ?? children!(toolkit)}
+    <FormContextProvider value={toolkitRef.current}>
+      {component ?? children!(toolkitRef.current)}
     </FormContextProvider>
   );
 };
