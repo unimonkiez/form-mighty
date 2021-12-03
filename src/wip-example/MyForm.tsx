@@ -1,8 +1,5 @@
 import { useEffect, useRef } from "react";
-import { FormMighty } from "../lib/FormMighty";
-import { FormSubscriber } from "../lib/FormSubscriber";
-import { FormState } from "../lib/types";
-import { useInitForm } from "../lib/useInitForm";
+import { FormMighty, FormSubscriber, FormState, useInitForm } from "../lib";
 
 const RenderChecker: React.FC<{ scope?: string }> = ({ scope, children }) => {
   const countRef = useRef(1);
