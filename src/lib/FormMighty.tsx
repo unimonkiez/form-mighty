@@ -21,7 +21,7 @@ export const FormMighty: <V>(
 }) => {
   invariant(
     component ?? children,
-    "FormMighty - Not received component or children prop"
+    "FormMighty - Must include one of [component, children] props"
   );
 
   const toolkitRef: React.MutableRefObject<Mandatory<typeof givenToolkit>> =
