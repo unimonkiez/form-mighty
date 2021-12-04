@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import invariant from "invariant";
 import { FormToolkit } from "./FormToolkit";
 import { FormContextProvider } from "./context";
@@ -9,8 +9,8 @@ export interface FormMightyProps<V extends DefaultFormValues>
   toolkit?: FormToolkit<V>;
   component?: React.ComponentType<any>;
   children?:
-    | React.ReactElement
-    | ((toolkit: FormToolkit<V>) => React.ReactNode);
+    | React.ReactNode
+    | ((toolkit: FormToolkit<V>) => React.ReactNode | React.ReactNode[]);
 }
 
 export const FormMighty: <V>(
