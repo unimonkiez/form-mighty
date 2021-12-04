@@ -38,6 +38,9 @@ export const MyForm: React.FC = () => {
       fieldA: "A",
       fieldB: "B",
     },
+    validate: async () => {
+      return new Promise((resolve) => setTimeout(() => resolve(false), 3000));
+    },
   });
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export const MyForm: React.FC = () => {
       toolkit.updateValues((draft) => {
         draft.fieldA = "A UPDATED";
       });
-    }, 3000);
+    }, 5000);
   }, [toolkit]);
 
   return (
@@ -57,13 +60,28 @@ export const MyForm: React.FC = () => {
               <code>{JSON.stringify(toolkit.getState())}</code>
               <br />
               <FormSubscriber
-                subscription={({ values }: FormState<MyFormType>) => ({
-                  a: values.fieldA,
+                subscription={({
+                  values,
+                  isValid,
+                  isValidating,
+                }: FormState<MyFormType>) => ({
+                  subscribedFieldA: values.fieldA,
+                  isValidating,
+                  isValid,
                 })}
               >
                 {(results) => (
                   <RenderChecker scope="root > content > fieldA Subscriber">
-                    <code>Results: {JSON.stringify(results)}</code>
+                    <code>{JSON.stringify(results)}</code>
+                  </RenderChecker>
+                )}
+              </FormSubscriber>
+              <FormSubscriber
+                subscription={(state: FormState<MyFormType>) => state}
+              >
+                {(results) => (
+                  <RenderChecker scope="root > content > all subscriber">
+                    <code>{JSON.stringify(results)}</code>
                   </RenderChecker>
                 )}
               </FormSubscriber>

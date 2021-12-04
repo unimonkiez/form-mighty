@@ -4,6 +4,8 @@ export type FormValuesType = Record<string, any>;
 export interface FormState<V extends FormValuesType> {
   initialValues: Partial<V>;
   values: V;
+  isValid: boolean;
+  isValidating: boolean;
 }
 
 export interface FormToolkit<V extends FormValuesType> {
@@ -15,6 +17,7 @@ export interface FormToolkit<V extends FormValuesType> {
     ...args: Parameters<SubscribeFn<V, T>>
   ) => ReturnType<SubscribeFn<V, T>>;
   updateValues: (arg: (valuesDraft: Draft<V>) => void | V) => void;
+  validate: () => Promise<boolean>;
 }
 
 export type SubscribeFn<V, T> = (formState: FormState<V>) => T;

@@ -1,21 +1,47 @@
 import { uniqueId } from "lodash";
 import produce from "immer";
 import invariant from "invariant";
-import { registerForm, updateFormValues } from "./redux/actions";
+import {
+  startValidation,
+  registerForm,
+  completeValidation,
+  updateFormValues,
+} from "./redux/actions";
 import { store } from "./redux/store";
 import { FormState, FormToolkit, FormValuesType } from "./types";
 
-export interface CreateFormToolkit {
-  <V extends FormValuesType>(arg: {
-    initialValues: Partial<V>;
-  }): FormToolkit<V>;
+export interface CreateFormToolkitArg<
+  V extends FormValuesType = FormValuesType
+> {
+  initialValues?: Partial<V>;
+  validate?: (values: V) => boolean | Promise<boolean>;
+  isInitialValid?: boolean;
+  isInitialRequiresValidation?: boolean;
 }
 
-export const createFormToolkit: CreateFormToolkit = ({ initialValues }) => {
+export interface CreateFormToolkit {
+  <V extends FormValuesType = FormValuesType>(
+    arg: CreateFormToolkitArg<V>
+  ): FormToolkit<V>;
+}
+
+export const createFormToolkit: CreateFormToolkit = ({
+  initialValues = {},
+  validate = () => true,
+  isInitialValid = true,
+  isInitialRequiresValidation = true,
+}) => {
   const initialState: FormState<any> = {
     values: initialValues,
     initialValues,
+    isValid: isInitialValid,
+    isValidating: isInitialRequiresValidation,
   };
+
+  let validationPromise = Promise.resolve({
+    timestamp: Date.now(),
+    isValid: true,
+  });
 
   const toolkit: FormToolkit<any> = {
     formKey: uniqueId("form-"),
@@ -27,6 +53,10 @@ export const createFormToolkit: CreateFormToolkit = ({ initialValues }) => {
       );
 
       store.dispatch(registerForm(toolkit.formKey, initialState));
+
+      if (isInitialRequiresValidation) {
+        toolkit.validate();
+      }
     },
     getState() {
       if (toolkit.isRegistered()) {
@@ -38,13 +68,41 @@ export const createFormToolkit: CreateFormToolkit = ({ initialValues }) => {
     subscribe() {
       throw new Error("Not implemented yet");
     },
-    updateValues(arg) {
+    updateValues(arg, isStartValidation = true) {
       store.dispatch(
         updateFormValues(
           toolkit.formKey,
-          produce(toolkit.getState().values, arg)
+          produce(toolkit.getState().values, arg),
+          isStartValidation
         )
       );
+
+      if (isStartValidation) {
+        toolkit.validate();
+      }
+    },
+    async validate() {
+      const { values } = toolkit.getState();
+
+      const { timestamp, isValid } = await validationPromise;
+
+      if (timestamp < Date.now()) {
+        validationPromise = new Promise(async (resolve) => {
+          store.dispatch(startValidation(toolkit.formKey));
+
+          const result = await validate(values);
+
+          store.dispatch(completeValidation(toolkit.formKey, result));
+          return resolve({
+            isValid: result,
+            timestamp: Date.now(),
+          });
+        });
+
+        return validationPromise.then(({ isValid }) => isValid);
+      } else {
+        return isValid;
+      }
     },
   };
 
