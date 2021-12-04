@@ -1,14 +1,16 @@
 import { useRef, useEffect } from "react";
-import { FormContextProvider } from "./formContext";
-import { createFormToolkit, CreateFormToolkitArg } from "./createFormToolkit";
-import { FormToolkit, FormValuesType, Mandatory } from "./types";
 import invariant from "invariant";
+import { FormToolkit } from "./FormToolkit";
+import { FormContextProvider } from "./context";
+import { DefaultFormValues, FormToolkitOptions, Mandatory } from "./types";
 
-export interface FormMightyProps<V extends FormValuesType>
-  extends CreateFormToolkitArg<V> {
+export interface FormMightyProps<V extends DefaultFormValues>
+  extends FormToolkitOptions<V> {
   toolkit?: FormToolkit<V>;
   component?: React.ComponentType<any>;
-  children?: (toolkit: FormToolkit<V>) => React.ReactNode;
+  children?:
+    | React.ReactElement
+    | ((toolkit: FormToolkit<V>) => React.ReactNode);
 }
 
 export const FormMighty: <V>(
@@ -17,7 +19,7 @@ export const FormMighty: <V>(
   toolkit: givenToolkit,
   component,
   children,
-  ...createToolkitArg
+  ...toolkitOptions
 }) => {
   invariant(
     component ?? children,
@@ -25,7 +27,7 @@ export const FormMighty: <V>(
   );
 
   const toolkitRef: React.MutableRefObject<Mandatory<typeof givenToolkit>> =
-    useRef(givenToolkit ?? createFormToolkit(createToolkitArg));
+    useRef(givenToolkit ?? new FormToolkit(toolkitOptions));
 
   useEffect(() => {
     toolkitRef.current.register();
@@ -33,7 +35,10 @@ export const FormMighty: <V>(
 
   return (
     <FormContextProvider value={toolkitRef.current}>
-      {component ?? children!(toolkitRef.current)}
+      {component ??
+        (typeof children === "function"
+          ? children!(toolkitRef.current)
+          : children)}
     </FormContextProvider>
   );
 };

@@ -1,6 +1,6 @@
-import { FormState, FormValuesType } from "../types";
+import { FormState, DefaultFormValues } from "../types";
 
-export const registerForm = <V extends FormValuesType>(
+export const registerForm = <V extends DefaultFormValues>(
   uniqueKey: string,
   initialState: FormState<V>
 ) => ({
@@ -8,7 +8,7 @@ export const registerForm = <V extends FormValuesType>(
   payload: { uniqueKey, initialState },
 });
 
-export const updateFormValues = <V extends FormValuesType>(
+export const updateFormValues = <V extends DefaultFormValues>(
   uniqueKey: string,
   nextValues: V,
   isStartValidation = true

@@ -1,15 +1,17 @@
 import { useMemo, useRef } from "react";
-import { createFormToolkit, CreateFormToolkitArg } from "./createFormToolkit";
-import { FormToolkit, FormValuesType } from "./types";
+import { FormToolkit } from "./FormToolkit";
+import { DefaultFormValues, FormToolkitOptions } from "./types";
 
 export interface UseInitForm {
-  <V extends FormValuesType>(arg?: CreateFormToolkitArg<V>): FormToolkit<V>;
+  <V extends DefaultFormValues>(
+    options?: FormToolkitOptions<V>
+  ): FormToolkit<V>;
 }
 
-export const useInitForm: UseInitForm = (arg = {}) => {
-  const argRef = useRef(arg);
+export const useInitForm: UseInitForm = (options = {}) => {
+  const optionsRef = useRef(options);
 
-  const toolkit = useMemo(() => createFormToolkit(argRef.current), []);
+  const toolkit = useMemo(() => new FormToolkit(optionsRef.current), []);
 
   return toolkit;
 };

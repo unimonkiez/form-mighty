@@ -1,6 +1,10 @@
 import { useContext } from "react";
-import { formContext } from "./formContext";
-import { FormToolkit, FormValuesType } from "./types";
+import { context } from "./context";
+import { FormToolkit } from "./FormToolkit";
+import { DefaultFormValues } from "./types";
 
-export const useForm = <V extends FormValuesType = any>() =>
-  useContext(formContext) as FormToolkit<V>;
+export interface UseForm {
+  <V extends DefaultFormValues>(): FormToolkit<V>;
+}
+
+export const useForm: UseForm = () => useContext(context);

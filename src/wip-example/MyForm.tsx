@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
+import { FormState } from "src/lib/types";
 import { FormMighty } from "../lib/FormMighty";
 import { FormSubscriber } from "../lib/FormSubscriber";
-import { FormState } from "../lib/types";
 import { useInitForm } from "../lib/useInitForm";
 
 const RenderChecker: React.FC<{ scope?: string }> = ({ scope, children }) => {
@@ -32,23 +32,24 @@ const RenderChecker: React.FC<{ scope?: string }> = ({ scope, children }) => {
 };
 
 export const MyForm: React.FC = () => {
-  type MyFormType = { fieldA: string; fieldB: string };
+  type MyFormType = { fieldA: string; fieldB: string; c: { x: [1, 2] } };
   const toolkit = useInitForm<MyFormType>({
     initialValues: {
       fieldA: "A",
       fieldB: "B",
+      c: { x: [1, 2] },
     },
     validate: async () => {
-      return new Promise((resolve) => setTimeout(() => resolve(false), 3000));
+      return new Promise((resolve) => setTimeout(() => resolve(false), 1000));
     },
   });
 
   useEffect(() => {
     setTimeout(() => {
       toolkit.updateValues((draft) => {
-        draft.fieldA = "A UPDATED";
+        draft.fieldB = "B UPDATED";
       });
-    }, 5000);
+    }, 3000);
   }, [toolkit]);
 
   return (
@@ -66,17 +67,22 @@ export const MyForm: React.FC = () => {
                   isValidating,
                 }: FormState<MyFormType>) => ({
                   subscribedFieldA: values.fieldA,
-                  isValidating,
-                  isValid,
+                  // isValidating,
+                  // isValid,
                 })}
               >
                 {(results) => (
                   <RenderChecker scope="root > content > fieldA Subscriber">
-                    <code>{JSON.stringify(results)}</code>
+                    <code>
+                      {JSON.stringify({
+                        results,
+                        // isValidating: toolkit.getState().isValidating,
+                      })}
+                    </code>
                   </RenderChecker>
                 )}
               </FormSubscriber>
-              <FormSubscriber
+              {/* <FormSubscriber
                 subscription={(state: FormState<MyFormType>) => state}
               >
                 {(results) => (
@@ -84,7 +90,7 @@ export const MyForm: React.FC = () => {
                     <code>{JSON.stringify(results)}</code>
                   </RenderChecker>
                 )}
-              </FormSubscriber>
+              </FormSubscriber> */}
             </RenderChecker>
           );
         }}

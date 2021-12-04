@@ -1,29 +1,19 @@
-import { FormToolkit, SubscribeFn, ValuesOfSubscription } from "./types";
+import { FormState, DefaultFormValues } from "./types";
 import invariant from "invariant";
 import { useForm } from "./useForm";
 import { useSelector, shallowEqual } from "react-redux";
 import { useEffect, useRef } from "react";
+import { FormToolkit } from "./FormToolkit";
 
-export interface FormSubscriberProps<
-  Subscription extends SubscribeFn<any, any>
-> {
-  subscription: Subscription;
-  onMount?: (
-    subscriptonResult: ReturnType<Subscription>,
-    toolkit: FormToolkit<ValuesOfSubscription<Subscription>>
-  ) => void;
-  onChange?: (
-    subscriptonResult: ReturnType<Subscription>,
-    toolkit: FormToolkit<ValuesOfSubscription<Subscription>>
-  ) => void;
-  children?: (
-    subscriptonResult: ReturnType<Subscription>,
-    toolkit: FormToolkit<ValuesOfSubscription<Subscription>>
-  ) => React.ReactNode;
+export interface FormSubscriberProps<V extends DefaultFormValues, T> {
+  subscription: (state: FormState<V>) => T;
+  onMount?: (subscriptonResult: T, toolkit: FormToolkit<V>) => void;
+  onChange?: (subscriptonResult: T, toolkit: FormToolkit<V>) => void;
+  children?: (subscriptonResult: T, toolkit: FormToolkit<V>) => React.ReactNode;
 }
 
-export const FormSubscriber: <Subscription extends SubscribeFn<any, any>>(
-  props: FormSubscriberProps<Subscription>
+export const FormSubscriber: <V extends DefaultFormValues, T>(
+  props: FormSubscriberProps<V, T>
 ) => React.ReactElement<any, any> | null = ({
   subscription,
   onMount,

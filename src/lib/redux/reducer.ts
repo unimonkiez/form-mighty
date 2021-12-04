@@ -8,10 +8,8 @@ export const reducer = (state = initialState, action: RootAction) => {
     switch (action.type) {
       case "@FORM_MIGHTY/RegisterForm": {
         const { uniqueKey, initialState } = action.payload;
-        return {
-          ...state,
-          [uniqueKey]: initialState,
-        };
+        draft[uniqueKey] = initialState;
+        break;
       }
       case "@FORM_MIGHTY/UpdateFormValues": {
         const { uniqueKey, nextValues, isStartValidation } = action.payload;
