@@ -1,3 +1,4 @@
+import { uniqueId } from "lodash";
 import { useEffect, useRef } from "react";
 import { FormState } from "src/lib/types";
 import { FormMighty } from "../lib/FormMighty";
@@ -32,25 +33,16 @@ const RenderChecker: React.FC<{ scope?: string }> = ({ scope, children }) => {
 };
 
 export const MyForm: React.FC = () => {
-  type MyFormType = { fieldA: string; fieldB: string; c: { x: [1, 2] } };
+  type MyFormType = { fieldA: string; fieldB: string };
   const toolkit = useInitForm<MyFormType>({
     initialValues: {
-      fieldA: "A",
+      fieldA: "A Initial",
       fieldB: "B",
-      c: { x: [1, 2] },
     },
     validate: async () => {
       return new Promise((resolve) => setTimeout(() => resolve(false), 1000));
     },
   });
-
-  useEffect(() => {
-    setTimeout(() => {
-      toolkit.updateValues((draft) => {
-        draft.fieldB = "B UPDATED";
-      });
-    }, 3000);
-  }, [toolkit]);
 
   return (
     <RenderChecker scope="root">
@@ -58,7 +50,7 @@ export const MyForm: React.FC = () => {
         {(toolkit) => {
           return (
             <RenderChecker scope="root > content">
-              <code>{JSON.stringify(toolkit.getState())}</code>
+              <code>Initial State: {JSON.stringify(toolkit.getState())}</code>
               <br />
               <FormSubscriber
                 subscription={({
@@ -67,30 +59,42 @@ export const MyForm: React.FC = () => {
                   isValidating,
                 }: FormState<MyFormType>) => ({
                   subscribedFieldA: values.fieldA,
-                  // isValidating,
-                  // isValid,
                 })}
               >
                 {(results) => (
                   <RenderChecker scope="root > content > fieldA Subscriber">
-                    <code>
-                      {JSON.stringify({
-                        results,
-                        // isValidating: toolkit.getState().isValidating,
-                      })}
-                    </code>
+                    <code>{JSON.stringify(results)}</code>
+                    <button
+                      onClick={() => {
+                        toolkit.updateValues((draft) => {
+                          draft.fieldA = uniqueId("A ");
+                        });
+                      }}
+                    >
+                      Click To Change A
+                    </button>
+                    <button
+                      onClick={() => {
+                        toolkit.updateValues((draft) => {
+                          draft.fieldB = uniqueId("B ");
+                        });
+                      }}
+                    >
+                      Click To Change B (And admire that this comp doesnt
+                      re-render.)
+                    </button>
                   </RenderChecker>
                 )}
               </FormSubscriber>
-              {/* <FormSubscriber
+              <FormSubscriber
                 subscription={(state: FormState<MyFormType>) => state}
               >
-                {(results) => (
-                  <RenderChecker scope="root > content > all subscriber">
-                    <code>{JSON.stringify(results)}</code>
+                {(entireState) => (
+                  <RenderChecker scope="root > content > entire state Subscriber">
+                    <code>{JSON.stringify(entireState)}</code>
                   </RenderChecker>
                 )}
-              </FormSubscriber> */}
+              </FormSubscriber>
             </RenderChecker>
           );
         }}
